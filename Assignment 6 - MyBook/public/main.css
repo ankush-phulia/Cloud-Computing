@@ -1,0 +1,160 @@
+input:focus,
+textarea:focus,
+select:focus
+{
+    outline: none;
+}
+
+div
+{
+	outline: none;
+}
+
+body
+{
+	/*background-color: rgb(238,236,225);*/
+	/*background-color: rgb(50,187,238);*/
+	/*font-family: comic sans MS;*/
+	font-family: Segoe UI, Tahoma, sans-serif;
+
+	/*background:radial-gradient( rgb(208,255,203) , rgb(218,255,213) , rgb(188,255,183) );*/
+}
+
+#tutdiv,
+#trtdiv
+{
+	position:absolute;
+	top:0px;
+	left:0px;
+	right:0px;
+	bottom:0px;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	background-color: #FFFFFF;
+	/*transition: height 2s;*/
+}
+
+#HomeDiv
+{
+
+	position:fixed;
+	top:10px;
+	left:10px;
+	right:15px;
+	bottom:15px;
+	/*width:98%;*/
+	/*border: 2px solid #FFC706; */
+	background-color: #FFFFFF;
+
+	box-shadow: 5px 5px 40px #000000;
+
+	border-radius: 7px 7px 7px 7px;
+
+	/*overflow-y: auto;*/
+	overflow-x: hidden; 
+
+	/*border-top: 1px solid rgb(128,0,0);
+	border-left: 5px solid rgb(128,0,0);
+	border-right: 5px solid rgb(128,0,0);
+	border-bottom: 5px solid rgb(128,0,0);*/
+}
+
+p
+{
+	/*font-family: comic sans MS;*/
+	font-family: Segoe UI, Tahoma, sans-serif;
+	/*font-family: Calibri;*/
+}
+
+.BodyDivs
+{
+	position: fixed;
+	top: 0px;
+	width: 15px;
+	height: 100%;
+	font-size: 24px;
+	font-style: italic;
+	font-weight: none;
+	color: #88683E;
+	background-color:rgb(210,230,230);
+}
+
+input[type="button"]
+{
+	/*background-color: rgb(126,136,6);*/
+
+	/*background-color: rgb(118,181,49);*/
+	
+	background-color: rgb(118,181,49);
+
+	border: 1px solid #FFC706;
+	/*color: rgb(251,247,225);*/
+	color: #FFFFFF;
+
+	font-family: verdana;
+	font-weight: none;
+	font-size: 13px;
+
+	width: 95px;
+	height: 35px;
+
+	border-radius: 0px 15px 0px 15px;
+	text-align: center;
+
+	box-shadow: 5px 5px 40px #333333;
+
+	padding-top: 0px;
+}
+
+input[type="button"]:hover
+{
+	background-color: rgb(29,113,136);
+	border: 1px solid #FFFFFF;
+	color: #FFFFFF;
+
+	font-family: verdana;
+	font-weight: none;
+	font-size: 13px;
+
+	/*width: 55px;*/
+	/*height: 75px;*/
+
+	border-radius: 15px 0px 15px 0px;
+	text-align: center;
+
+	box-shadow: 1px 0px 20px #000000;
+
+	padding-top: 0px;
+}
+
+.downarrow
+{
+	height: 0%;
+	transition: all 0.2s;
+}
+
+.uparrow
+{
+	height: 0%;
+	transition: all 0.2s;
+}
+
+/*#tutdiv
+{
+	transition: all 12s;
+}*/
+/*.downarrow: hover
+{
+	height: 25%;
+}*/
+.tutorial_div, 
+.treatment_div {
+	color: #ffffff;
+	vertical-align: bottom;
+	/*font-family: 'Raleway',sans-serif;*/ 
+	font-size: 30px; 
+	font-weight: 800; 
+	line-height: 36px; 
+	margin: 0 0 24px; 
+	text-align: center;
+}

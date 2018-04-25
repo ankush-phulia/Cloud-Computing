@@ -1,0 +1,30 @@
+{
+  "name": "mybookazure",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vaibhavbhagee/myBookAzure.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vaibhavbhagee/myBookAzure/issues"
+  },
+  "homepage": "https://github.com/vaibhavbhagee/myBookAzure#readme",
+  "dependencies": {
+    "Express": "^3.0.1",
+    "azure-storage": "^2.6.0",
+    "body-parser": "^1.18.2",
+    "crypto": "^1.0.1",
+    "express": "^4.16.2",
+    "fs": "0.0.1-security",
+    "jsonwebtoken": "^8.1.0",
+    "mongodb": "^2.2.33",
+    "path": "^0.12.7"
+  }
+}
