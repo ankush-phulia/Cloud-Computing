@@ -2,17 +2,18 @@
 from random import randrange
 import copy
 
+
 class BlockInfo(object):
     def __init__(self, data):
         self.allocated = False
         self.data = data
-        
+
 
 class Disk(object):
     def __init__(self, ident, allocList, size):
 
         # ID of the disk
-        self.id = ident 
+        self.id = ident
 
         # Size of the disk
         self.size = size
@@ -33,19 +34,18 @@ class Disk(object):
         self.snapShot = []
 
     def calc_index_alloc(self, numBlock):
-        #assuming numblocks start from 1 but "start" starts from 0
-        ##double check
-        temp = numBlock -1
+        # assuming numblocks start from 1 but "start" starts from 0
+        # double check
+        temp = numBlock - 1
         if (numBlock > self.size):
             raise Exception("Size of disk exceeded")
-        else :
+        else:
             index = 0
             for i in xrange(len(self.allocList)):
                 if (self.allocList[i][1][1] > temp):
                     return self.allocList[i][1][0] + temp, self.allocList[i][0]
                 else:
                     temp = temp - self.allocList[i][1][1]
-
 
     def remove_alloc(self, physicalBlockNo, physicalDiskID):
         for i in xrange(len(self.allocList)):
@@ -54,40 +54,38 @@ class Disk(object):
                 end = start + self.allocList[i][1][1]
                 if ((physicalBlockNo >= start) and (physicalBlockNo < end)):
                     if (physicalBlockNo == start):
-                        if (start+1<end):
-                            self.allocList[i][1][0] = self.allocList[i][1][0] +1
-                            self.allocList[i][1][1] = self.allocList[i][1][1] -1
-                        else :
+                        if (start+1 < end):
+                            self.allocList[i][1][0] = self.allocList[i][1][0] + 1
+                            self.allocList[i][1][1] = self.allocList[i][1][1] - 1
+                        else:
                             #!! remove this element from list
                             del self.allocList[i]
                     elif (physicalBlockNo == end-1):
-                        self.allocList[i][1][1] = self.allocList[i][1][1] -1
-                    else :
+                        self.allocList[i][1][1] = self.allocList[i][1][1] - 1
+                    else:
                         self.allocList[i][1][1] = physicalBlockNo - start
-                        ## Triple check this
-                        new_elem = [physicalDiskID,(physicalBlockNo+1,end - physicalBlockNo-1)]
-                        self.allocList.insert(i+1,new_elem)
+                        # Triple check this
+                        new_elem = [physicalDiskID,
+                                    (physicalBlockNo+1, end - physicalBlockNo-1)]
+                        self.allocList.insert(i+1, new_elem)
                     break
-
-
-
 
 
 class Command(object):
     def __init__(self, type, args):
         self.type = type
         self.args = args
-        
-        
+
+
 class VirtualDisk(object):
     def __init__(self, Asize=200, Bsize=300):
         self.A = [BlockInfo(None) for i in xrange(Asize)]
         self.B = [BlockInfo(None) for i in xrange(Bsize)]
 
-        self.phyMap = {"A" : self.A , "B" : self.B}
+        self.phyMap = {"A": self.A, "B": self.B}
 
-        self.freeBlockRangeA = [[0,Asize-1]]
-        self.freeBlockRangeB = [[0,Bsize-1]]
+        self.freeBlockRangeA = [[0, Asize-1]]
+        self.freeBlockRangeB = [[0, Bsize-1]]
 
         self.repFactor = 2
 
@@ -96,32 +94,30 @@ class VirtualDisk(object):
         self.Disks = {}  # Disk Id to disk object
 
         self.funMap = {
-            "createDisk" : lambda x: self.createDisk(**x),
-            "deleteDisk" : lambda x: self.deleteDisk(**x),
-            "readFromDisk" : lambda x: self.readFromDisk(**x),
-            "writeToDisk" : lambda x: self.writeToDisk(**x),
-            "snapShot" : lambda x: self.snapShot(**x),
-            "rollBack" : lambda x: self.rollBack(**x)
+            "createDisk": lambda x: self.createDisk(**x),
+            "deleteDisk": lambda x: self.deleteDisk(**x),
+            "readFromDisk": lambda x: self.readFromDisk(**x),
+            "writeToDisk": lambda x: self.writeToDisk(**x),
+            "snapShot": lambda x: self.snapShot(**x),
+            "rollBack": lambda x: self.rollBack(**x)
         }
 
-         
-
-
-    def createDisk(self,diskId, size):
+    def createDisk(self, diskId, size):
         '''
         Allocate 'size' blocks to new disk with ID diskId
         '''
 
         # Check if disk can be created in the first itself
         if self.availableSize < size:
-            raise Exception("Disk {} with size {} cannot be created".format(diskId, size))
+            raise Exception(
+                "Disk {} with size {} cannot be created".format(diskId, size))
 
         # check for contiguous space in disk A
         for i in xrange(len(self.freeBlockRangeA)):
             if self.freeBlockRangeA[i][1] - self.freeBlockRangeA[i][0] + 1 >= size:
 
                 # Store id: (Physical Disk, (Start, size)) mapping
-                allocBlockList = [("A",(self.freeBlockRangeA[i][0], size))]
+                allocBlockList = [("A", (self.freeBlockRangeA[i][0], size))]
 
                 self.Disks[diskId] = Disk(diskId, allocBlockList, size)
 
@@ -139,7 +135,7 @@ class VirtualDisk(object):
             if self.freeBlockRangeB[i][1] - self.freeBlockRangeB[i][0] + 1 >= size:
 
                 # Store id: (Physical Disk, (Start, size)) mapping
-                allocBlockList = [("B",(self.freeBlockRangeB[i][0], size))]
+                allocBlockList = [("B", (self.freeBlockRangeB[i][0], size))]
 
                 self.Disks[diskId] = Disk(diskId, allocBlockList, size)
 
@@ -150,8 +146,8 @@ class VirtualDisk(object):
 
                 self.availableSize -= size
 
-                return True        
-        
+                return True
+
         # Checking for fragmented space in A and B
         diskSize = size
         allocBlockList = []
@@ -163,7 +159,7 @@ class VirtualDisk(object):
             if self.freeBlockRangeA[i][1] - self.freeBlockRangeA[i][0] + 1 >= diskSize:
 
                 # Store id: (Physical Disk, (Start, size)) mapping
-                allocBlockList += [("A",(self.freeBlockRangeA[0], diskSize))]
+                allocBlockList += [("A", (self.freeBlockRangeA[0], diskSize))]
 
                 self.freeBlockRangeA[i][0] += diskSize
 
@@ -172,8 +168,9 @@ class VirtualDisk(object):
 
                 diskSize = 0
             else:
-                rangeSize = self.freeBlockRangeA[i][1] - self.freeBlockRangeA[i][0] + 1
-                allocBlockList += [("A",(self.freeBlockRangeA[0], rangeSize))]
+                rangeSize = self.freeBlockRangeA[i][1] - \
+                    self.freeBlockRangeA[i][0] + 1
+                allocBlockList += [("A", (self.freeBlockRangeA[0], rangeSize))]
                 self.freeBlockRangeA = self.freeBlockRangeA[1:]
                 diskSize -= rangeSize
 
@@ -185,7 +182,8 @@ class VirtualDisk(object):
                 if self.freeBlockRangeB[i][1] - self.freeBlockRangeB[i][0] + 1 >= diskSize:
 
                     # Store id: (Physical Disk, (Start, size)) mapping
-                    allocBlockList += [("B",(self.freeBlockRangeB[0], diskSize))]
+                    allocBlockList += [("B",
+                                        (self.freeBlockRangeB[0], diskSize))]
 
                     self.freeBlockRangeB[i][0] += diskSize
 
@@ -194,16 +192,18 @@ class VirtualDisk(object):
 
                     diskSize = 0
                 else:
-                    rangeSize = self.freeBlockRangeB[i][1] - self.freeBlockRangeB[i][0] + 1
-                    allocBlockList += [("B",(self.freeBlockRangeB[0], rangeSize))]
+                    rangeSize = self.freeBlockRangeB[i][1] - \
+                        self.freeBlockRangeB[i][0] + 1
+                    allocBlockList += [("B",
+                                        (self.freeBlockRangeB[0], rangeSize))]
                     self.freeBlockRangeB = self.freeBlockRangeB[1:]
-                    diskSize -= rangeSize            
+                    diskSize -= rangeSize
 
         self.Disks[diskId] = Disk(diskId, allocBlockList, size)
         self.availableSize -= size
 
         return True
-        
+
     def addRangeToList(self, phyDiskId, bRange):
         if phyDiskId == "A":
             temp_list = []
@@ -226,7 +226,7 @@ class VirtualDisk(object):
 
             for interval in (temp_list[1:]):
                 if merge_list[-1][1] == interval[0] - 1:
-                    merge_list[-1] = [merge_list[-1][0],interval[1]]
+                    merge_list[-1] = [merge_list[-1][0], interval[1]]
                 else:
                     merge_list += [interval]
 
@@ -253,7 +253,7 @@ class VirtualDisk(object):
 
             for interval in (temp_list[1:]):
                 if merge_list[-1][1] == interval[0] - 1:
-                    merge_list[-1] = [merge_list[-1][0],interval[1]]
+                    merge_list[-1] = [merge_list[-1][0], interval[1]]
                 else:
                     merge_list += [interval]
 
@@ -264,7 +264,8 @@ class VirtualDisk(object):
         Delete the disk with given disk ID
         '''
         if diskId not in self.Disks:
-            raise Exception("Disk with disk id {} does not exist.".format(diskId))
+            raise Exception(
+                "Disk with disk id {} does not exist.".format(diskId))
 
         allocList = self.Disks[diskId].allocList
 
@@ -274,107 +275,100 @@ class VirtualDisk(object):
 
         self.Disks.pop(diskId, None)
 
-
-
     def readFromDisk(self, diskId, blockNo):
         '''
         Read data from block given the id and info
         '''
         curDisk = self.Disks[diskId]
         if blockNo in curDisk.blockMap:
-            if (randrange(0,10) > 8):
+            if (randrange(0, 10) > 8):
                 # print 'Block Error at ',blockNo
-                physicalDiskID,physicalBlockNo = curDisk.blockMap[blockNo][1]
+                physicalDiskID, physicalBlockNo = curDisk.blockMap[blockNo][1]
                 curDisk.numBlocks -= 1
-                curDisk.remove_alloc(physicalBlockNo,physicalDiskID)
+                curDisk.remove_alloc(physicalBlockNo, physicalDiskID)
                 curDisk.blockMap[0] = curDisk.blockMap[1]
                 curData = self.phyMap[physicalDiskID][physicalBlockNo].data
-                newPhysicalDiskID, newPhysicalBlockNo = self.replicate(blockNo,curData,diskId)
-                curDisk.blockMap[blockNo][1] = (newPhysicalBlockNo,newPhysicalDiskID)
-                return curData 
+                newPhysicalDiskID, newPhysicalBlockNo = self.replicate(
+                    blockNo, curData, diskId)
+                curDisk.blockMap[blockNo][1] = (
+                    newPhysicalBlockNo, newPhysicalDiskID)
+                return curData
             else:
-                physicalDiskID,physicalBlockNo = curDisk.blockMap[blockNo][0]
+                physicalDiskID, physicalBlockNo = curDisk.blockMap[blockNo][0]
                 return self.phyMap[physicalDiskID][physicalBlockNo].data
         else:
             raise Exception("Physical Block not found")
 
-    def writeToDiskhelper(self, blockNo,data,diskId,replicate):
+    def writeToDiskhelper(self, blockNo, data, diskId, replicate):
         '''
 
         '''
         curDisk = self.Disks[diskId]
         if (replicate):
             numBlocks = curDisk.numBlocks
-            alloc_index,physicalDiskId = curDisk.calc_index_alloc(numBlocks+1)
+            alloc_index, physicalDiskId = curDisk.calc_index_alloc(numBlocks+1)
             self.phyMap[physicalDiskID][alloc_index].data = data
             curDisk.numBlocks += 1
-            return physicalDiskID,alloc_index
+            return physicalDiskID, alloc_index
 
-        else :
+        else:
             if blockNo in curDisk.blockMap:
                 locations = curDisk.blockMap[blockNo]
                 for i in xrange(len(locations)):
-                    physicalDiskID,physicalBlockNo = locations[i]
+                    physicalDiskID, physicalBlockNo = locations[i]
                     self.phyMap[physicalDiskID][physicalBlockNo].data = data
-            else :
+            else:
                 locations = []
                 for i in xrange(self.repFactor):
                     numBlocks = curDisk.numBlocks
-                    alloc_index,physicalDiskID = curDisk.calc_index_alloc(numBlocks+1)
+                    alloc_index, physicalDiskID = curDisk.calc_index_alloc(
+                        numBlocks+1)
                     self.phyMap[physicalDiskID][alloc_index].data = data
                     curDisk.numBlocks += 1
-                    locations.append((physicalDiskID,alloc_index))
+                    locations.append((physicalDiskID, alloc_index))
                 curDisk.blockMap[blockNo] = locations
-
-
-
-
 
     def writeToDisk(self, diskId, blockNo, data):
         '''
         Write data to block given id and info
         '''
         # if write successful
-        self.writeToDiskhelper(blockNo,data,diskId,False)
+        self.writeToDiskhelper(blockNo, data, diskId, False)
 
         # if write fail
         # print 'Failed writing data to {}'.format(blockNo)
-        
 
-    def replicate(self,blockNo,diskId,data):
-        physicalDiskID,physicalBlockNo = self.writeToDiskhelper(blockNo,data,diskId,True)
+    def replicate(self, blockNo, diskId, data):
+        physicalDiskID, physicalBlockNo = self.writeToDiskhelper(
+            blockNo, data, diskId, True)
         return physicalDiskID, physicalBlockNo
-
-
 
     def snapShot(self, diskId):
         self.Disks[diskId].snapShot += [(self.Disks[diskId].commandNo)]
 
         return len(self.Disks[diskId].snapShot)
 
-
     def rollBack(self, diskId, snapshotNo):
         '''
-        
+
         '''
 
         curDisk = self.Disks[diskId]
         curDisk.blockMap = {}
-        tempCommand = copy.deepcopy(curDisk.Commands[:curDisk.snapShot[snapshotNo - 1]])
+        tempCommand = copy.deepcopy(
+            curDisk.Commands[:curDisk.snapShot[snapshotNo - 1]])
         curDisk.commands = []
         curDisk.commandNo = 0
         curDisk.snapShot = curDisk.snapShot[:snapshotNo]
 
         for i in xrange(len(tempCommand)):
-            self.CallCmd(tempCommand[i].type,diskId,tempCommand[i].args)
-
-
+            self.CallCmd(tempCommand[i].type, diskId, tempCommand[i].args)
 
     def CallCmd(self, cmdType, diskId, args):
 
         # Do we need to check for Rollbacks?
         if cmdType not in ["createDisk", "snapShot", "rollBack"]:
-            self.Disks[diskId].Commands += [Command(cmdType,args)]
+            self.Disks[diskId].Commands += [Command(cmdType, args)]
             self.Disks[diskId].commandNo += 1
 
         if cmdType == 'createDisk':
@@ -389,7 +383,8 @@ class VirtualDisk(object):
             return self.snapShot(diskId)
         elif cmdType == 'rollBack':
             self.rollBack(diskId, args['snapShotNo'])
-        #self.funMap[cmdType](args)
+        # self.funMap[cmdType](args)
+
 
 def printState(disk):
     print '-'*80
@@ -399,10 +394,11 @@ def printState(disk):
         print 'Disk Id :', diskobj.id
         print 'Disk Size :', diskobj.size
         if diskobj.blockMap:
-            print  'Disk Contents :'
+            print 'Disk Contents :'
             for blockid, blockdata in diskobj.blockMap.iteritems():
                 print 'VA :', blockid, '   Replica 1 - PA :', blockdata[0][1], \
-                '   Replica 2 - PA :', blockdata[1][1], '   Data :', disk.phyMap[blockdata[0][0]][blockdata[0][1]].data
+                    '   Replica 2 - PA :', blockdata[1][1], '   Data :', disk.phyMap[blockdata[0]
+                                                                                     [0]][blockdata[0][1]].data
         print ''
     print 'Free Lists : '
     print disk.freeBlockRangeA
@@ -413,16 +409,16 @@ def printState(disk):
 
 def BasicTest():
     Disk = VirtualDisk(200, 300)
-    Disk.CallCmd("createDisk", 1, {'size':100})
-    Disk.CallCmd("createDisk", 2, {'size':200})
-    Disk.CallCmd("writeToDisk", 1, {'blockNo':5, 'data':'Five'})
-    Disk.CallCmd("writeToDisk", 2, {'blockNo':10, 'data':'Ten'})
+    Disk.CallCmd("createDisk", 1, {'size': 100})
+    Disk.CallCmd("createDisk", 2, {'size': 200})
+    Disk.CallCmd("writeToDisk", 1, {'blockNo': 5, 'data': 'Five'})
+    Disk.CallCmd("writeToDisk", 2, {'blockNo': 10, 'data': 'Ten'})
     printState(Disk)
     # Disk.CallCmd("readFromDisk", 2, {'blockNo':5})
-    print 'Read', Disk.CallCmd("readFromDisk", 2, {'blockNo':10})
-    print 'Read', Disk.CallCmd("readFromDisk", 1, {'blockNo':5})
-    Disk.CallCmd("writeToDisk", 1, {'blockNo':5, 'data':'Six'})
-    print 'Read', Disk.CallCmd("readFromDisk", 1, {'blockNo':5})
+    print 'Read', Disk.CallCmd("readFromDisk", 2, {'blockNo': 10})
+    print 'Read', Disk.CallCmd("readFromDisk", 1, {'blockNo': 5})
+    Disk.CallCmd("writeToDisk", 1, {'blockNo': 5, 'data': 'Six'})
+    print 'Read', Disk.CallCmd("readFromDisk", 1, {'blockNo': 5})
     Disk.CallCmd('deleteDisk', 2, {})
     # Disk.CallCmd("readFromDisk", 1, {'blockNo':10})
     # Disk.CallCmd("", 2, {'size':200})
@@ -430,12 +426,13 @@ def BasicTest():
     Disk.CallCmd('deleteDisk', 1, {})
     printState(Disk)
 
+
 def SegmentationTest():
     Disk = VirtualDisk(200, 300)
-    Disk.CallCmd("createDisk", 1, {'size':50})
-    Disk.CallCmd("createDisk", 2, {'size':50})
-    Disk.CallCmd("createDisk", 3, {'size':100})
-    Disk.CallCmd("createDisk", 4, {'size':100})
+    Disk.CallCmd("createDisk", 1, {'size': 50})
+    Disk.CallCmd("createDisk", 2, {'size': 50})
+    Disk.CallCmd("createDisk", 3, {'size': 100})
+    Disk.CallCmd("createDisk", 4, {'size': 100})
     printState(Disk)
     Disk.CallCmd('deleteDisk', 1, {})
     printState(Disk)
@@ -449,29 +446,29 @@ def SegmentationTest():
 
 def RollBackTest():
     Disk = VirtualDisk(200, 300)
-    Disk.CallCmd("createDisk", 1, {'size':100})
-    Disk.CallCmd("createDisk", 2, {'size':200})
-    Disk.CallCmd("writeToDisk", 1, {'blockNo':5, 'data':'Five'})
-    Disk.CallCmd("writeToDisk", 2, {'blockNo':10, 'data':'Ten'})
+    Disk.CallCmd("createDisk", 1, {'size': 100})
+    Disk.CallCmd("createDisk", 2, {'size': 200})
+    Disk.CallCmd("writeToDisk", 1, {'blockNo': 5, 'data': 'Five'})
+    Disk.CallCmd("writeToDisk", 2, {'blockNo': 10, 'data': 'Ten'})
 
     printState(Disk)
     # Disk.CallCmd("readFromDisk", 2, {'blockNo':5})
-    print 'Read', Disk.CallCmd("readFromDisk", 2, {'blockNo':10})
-    print 'Read', Disk.CallCmd("readFromDisk", 1, {'blockNo':5})
+    print 'Read', Disk.CallCmd("readFromDisk", 2, {'blockNo': 10})
+    print 'Read', Disk.CallCmd("readFromDisk", 1, {'blockNo': 5})
 
     snap = Disk.CallCmd("snapShot", 1, {})
-    Disk.CallCmd("writeToDisk", 1, {'blockNo':5, 'data':'Six'})
-    print 'Read', Disk.CallCmd("readFromDisk", 1, {'blockNo':5})
+    Disk.CallCmd("writeToDisk", 1, {'blockNo': 5, 'data': 'Six'})
+    print 'Read', Disk.CallCmd("readFromDisk", 1, {'blockNo': 5})
 
     snap2 = Disk.CallCmd("snapShot", 2, {})
-    Disk.CallCmd("writeToDisk", 2, {'blockNo':11, 'data':'Eleven'})
+    Disk.CallCmd("writeToDisk", 2, {'blockNo': 11, 'data': 'Eleven'})
     printState(Disk)
 
     print 'Rolling Back 2'
-    Disk.CallCmd('rollBack', 2, {'snapShotNo':snap2})
+    Disk.CallCmd('rollBack', 2, {'snapShotNo': snap2})
     printState(Disk)
     print 'Rolling Back 1'
-    Disk.CallCmd('rollBack', 1, {'snapShotNo':snap})
+    Disk.CallCmd('rollBack', 1, {'snapShotNo': snap})
     printState(Disk)
 
     Disk.CallCmd('deleteDisk', 2, {})
@@ -479,6 +476,7 @@ def RollBackTest():
     # Disk.CallCmd("", 2, {'size':200})
     Disk.CallCmd('deleteDisk', 1, {})
     printState(Disk)
+
 
 if __name__ == '__main__':
     SegmentationTest()
