@@ -1,3 +1,3 @@
-# COL-733
+# Cloud Computing
 
-Course Projects done in Cloud Computing, 2017
+Course Projects done in COL 733 - Cloud Computing, 2017
